@@ -1,0 +1,37 @@
+---
+- name: Installer Docker, Jenkins, Portainer et déployer le conteneur web
+  hosts: webserver
+  become: true
+  tasks:
+    - name: S'assurer que Docker est installé
+      ansible.builtin.apt:
+        name: docker.io
+        state: present
+        update_cache: true
+
+    - name: S'assurer que docker compose v2 est installé
+      ansible.builtin.apt:
+        name: docker-compose-v2
+        state: present
+
+    - name: Créer le répertoire de l'application
+      ansible.builtin.file:
+        path: /opt/myapp
+        state: directory
+        mode: '0755'
+
+    - name: Copier les fichiers Docker
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: /opt/myapp/
+      loop:
+        - Dockerfile
+        - index.html
+        - docker-compose.yml
+
+    - name: Déployer la stack avec Docker Compose
+      community.docker.docker_compose_v2:
+        project_src: /opt/myapp
+        state: present
+        recreate: always
+        remove_orphans: true

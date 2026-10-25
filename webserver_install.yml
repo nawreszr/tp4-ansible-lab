@@ -1,0 +1,33 @@
+---
+- name: Installer et configurer le serveur web
+  hosts: webserver
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Créer le dossier de test
+      ansible.builtin.file:
+        path: "/home/{{ ansible_user }}/test"
+        state: directory
+        owner: "{{ ansible_user }}"
+        mode: '0755'
+
+    - name: Installer Apache
+      ansible.builtin.apt:
+        name: apache2
+        state: present
+        update_cache: true
+
+    - name: Copier le site web sur les nœuds
+      ansible.builtin.copy:
+        src: index.html
+        dest: /var/www/html/index.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Vérifier qu'Apache est démarré et activé au boot
+      ansible.builtin.service:
+        name: apache2
+        state: started
+        enabled: true

@@ -1,0 +1,28 @@
+---
+- name: Installer Docker
+  ansible.builtin.apt:
+    name: docker.io
+    state: present
+    update_cache: true
+
+- name: Installer docker compose v2
+  ansible.builtin.apt:
+    name: docker-compose-v2
+    state: present
+
+- name: Créer le volume Portainer
+  community.docker.docker_volume:
+    name: portainer_data
+    state: present
+
+- name: Lancer Portainer
+  community.docker.docker_container:
+    name: portainer
+    image: portainer/portainer-ce:latest
+    state: started
+    restart_policy: unless-stopped
+    ports:
+      - "9000:9000"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "portainer_data:/data"

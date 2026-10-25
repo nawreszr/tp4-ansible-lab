@@ -1,0 +1,31 @@
+---
+- name: Créer le répertoire de l'application
+  ansible.builtin.file:
+    path: /opt/myapp
+    state: directory
+    mode: '0755'
+
+- name: Copier les fichiers de l'application
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: /opt/myapp/
+  loop:
+    - Dockerfile
+    - index.html
+
+- name: Construire l'image web
+  community.docker.docker_image:
+    name: tp4-web
+    source: build
+    build:
+      path: /opt/myapp
+    state: present
+
+- name: Lancer le conteneur web
+  community.docker.docker_container:
+    name: web
+    image: tp4-web
+    state: started
+    restart_policy: unless-stopped
+    ports:
+      - "8081:80"

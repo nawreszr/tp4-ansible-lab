@@ -1,0 +1,12 @@
+[webserver]
+web-node ansible_connection=local ansible_python_interpreter=/usr/bin/python3
+
+[ftpserver]
+ftp-node ansible_connection=local ansible_python_interpreter=/usr/bin/python3
+
+[nodes:children]
+webserver
+ftpserver
+
+[nodes:vars]
+ansible_user=workerdevops
